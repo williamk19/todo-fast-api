@@ -2,10 +2,9 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, Path
 from pydantic import BaseModel, Field
 from starlette import status
-from database import SessionLocal
+from src.database.database import SessionLocal
 from sqlalchemy.orm import Session
-
-from models import Todos
+from src.models.models import Todos
 
 router = APIRouter(prefix="/todos", tags=["todos"])
 
