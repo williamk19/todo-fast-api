@@ -9,6 +9,7 @@ fastapi = {extras = ["all"], version = "*"}
 passlib = {extras = ["bcrypt"], version = "*"}
 python-multipart = "*"
 python-jose = {extras = ["cryptography"], version = "*"}
+psycopg2-binary = "*"
 
 [dev-packages]
 
