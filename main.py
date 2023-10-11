@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 import src.models.models as models
 from src.database.database import engine
-from src.routers import auth, todos, admin
+from src.routers import auth, todos, admin, users
 
 app = FastAPI()
 models.Base.metadata.create_all(bind=engine)
@@ -15,3 +15,4 @@ async def test():
 app.include_router(auth.router)
 app.include_router(todos.router)
 app.include_router(admin.router)
+app.include_router(users.router)

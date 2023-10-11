@@ -1,5 +1,6 @@
 from typing import Annotated
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Path
+from httpx import delete
 from sqlalchemy.orm import Session
 from starlette import status
 
@@ -28,6 +29,24 @@ async def get_all_todos_admin(user: user_deps, db: db_deps):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Unauthorize request"
         )
-    
+
     todos = db.query(Todos).all()
     return todos
+
+
+@router.delete("/todos/{todo_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_todo_admin(user: user_deps, db: db_deps, todo_id: int = Path(gt=0)):
+    if user is None and user.get("role") != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Unauthorize request"
+        )
+
+    query_todo = db.query(Todos).filter(Todos.id == todo_id).first()
+
+    if query_todo is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Todo not found"
+        )
+
+    db.query(Todos).filter(Todos.id == todo_id).delete()
+    db.commit()
