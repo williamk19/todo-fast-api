@@ -8,8 +8,7 @@ from starlette import status
 from passlib.context import CryptContext
 from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
 from jose import jwt, JWTError
-from src.config.config import config
-
+from src.config.config import JWT_SECRET, JWT_ALGO, JWT_EXPIRE
 from src.models.models import Users
 
 router = APIRouter(prefix="/auth", tags=["auth"])
@@ -52,11 +51,13 @@ def authenticate_user(username: str, password: str, db):
     return user
 
 
-def create_access_token(username: str, user_id: int, expires_delta: timedelta):
-    encode = {"sub": username, "id": user_id}
+def create_access_token(
+    username: str, user_id: int, role: str, expires_delta: timedelta
+):
+    encode = {"sub": username, "id": user_id, "role": role}
     expires = datetime.utcnow() + expires_delta
     encode.update({"exp": expires})
-    return jwt.encode(encode, config.JWT_SECRET, algorithm=config.JWT_ALGO)
+    return jwt.encode(encode, JWT_SECRET, algorithm=JWT_ALGO)
 
 
 @router.post("/register", status_code=status.HTTP_201_CREATED)
@@ -86,21 +87,27 @@ async def login_user(
             detail="Couldn't validate username",
         )
 
-    token = create_access_token(user.username, user.id, timedelta(days=20))
+    token = create_access_token(
+        user.username, user.id, user.role, timedelta(milliseconds=float(JWT_EXPIRE))
+    )
     return {"access_token": token, "token_type": "Bearer"}
 
 
 async def get_current_user(token: Annotated[str, Depends(oauth2_bearer)]):
     try:
-        payload = jwt.decode(token, config.JWT_SECRET, algorithms=[config.JWT_ALGO])
+        payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGO])
         username: str = payload.get("sub")
         user_id: int = payload.get("id")
+        role: str = payload.get("role")
+
         if username is None or user_id is None:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Couldn't validate username",
             )
-        return {"username": username, "id": user_id}
+
+        return {"username": username, "id": user_id, "role": role}
+
     except JWTError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Couldn't validate user"
