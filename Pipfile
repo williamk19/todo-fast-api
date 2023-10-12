@@ -10,8 +10,12 @@ passlib = {extras = ["bcrypt"], version = "*"}
 python-multipart = "*"
 python-jose = {extras = ["cryptography"], version = "*"}
 psycopg2-binary = "*"
+pymysql = "*"
 
 [dev-packages]
 
 [requires]
 python_version = "3.11.5"
+
+[scripts]
+dev = "uvicorn main:app --reload"
