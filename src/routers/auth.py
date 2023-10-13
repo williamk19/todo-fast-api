@@ -8,8 +8,9 @@ from starlette import status
 from passlib.context import CryptContext
 from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
 from jose import jwt, JWTError
+
 from src.config.config import JWT_SECRET, JWT_ALGO, JWT_EXPIRE
-from src.models.models import Users
+from src.models.model import Users
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -39,6 +40,7 @@ class UserRequest(BaseModel):
     first_name: str
     last_name: str
     password: str
+    phone_number: str = Field(min_length=8, max_length=15)
     role: str = Field(default="member")
 
 
@@ -68,6 +70,7 @@ async def create_user(db: db_deps, user_request: UserRequest):
         first_name=user_request.first_name,
         last_name=user_request.last_name,
         hashed_password=bcrypt_context.hash(user_request.password),
+        phone_number=user_request.phone_number,
         role=user_request.role,
         is_active=True,
     )

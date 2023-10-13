@@ -1,10 +1,10 @@
 from fastapi import FastAPI
-import src.models.models as models
+from src.models import model
 from src.database.database import engine
 from src.routers import auth, todos, admin, users
 
 app = FastAPI()
-models.Base.metadata.create_all(bind=engine)
+model.Base.metadata.create_all(bind=engine)
 
 
 @app.get("/")

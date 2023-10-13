@@ -4,7 +4,8 @@ from pydantic import BaseModel, Field
 from starlette import status
 from src.database.database import SessionLocal
 from sqlalchemy.orm import Session
-from src.models.models import Todos
+
+from src.models.model import Todos
 from .auth import get_current_user
 
 router = APIRouter(prefix="/todos", tags=["todos"])

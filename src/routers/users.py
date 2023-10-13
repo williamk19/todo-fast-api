@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from passlib.context import CryptContext
 
 from ..database.database import SessionLocal
-from ..models.models import Users
+from ..models.model import Users
 from .auth import get_current_user
 
 
@@ -63,5 +63,26 @@ async def change_user_password(
         raise HTTPException(status_code=401, detail="Unauthorize Request")
 
     current_user.hashed_password = bcrypt_context.hash(password_request.password)
+    db.add(current_user)
+    db.commit()
+
+
+class PhoneRequest(BaseModel):
+    phone_number: str = Field(min_length=8, max_length=15)
+
+
+@router.put("/phone_number", status_code=status.HTTP_204_NO_CONTENT)
+async def change_phone_number(
+    user: user_deps, db: db_deps, phone_request: PhoneRequest
+):
+    if user is None:
+        raise HTTPException(status_code=401, detail="Unauthorize Request")
+
+    current_user = db.query(Users).filter(Users.id == user.get("id")).first()
+
+    if current_user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    current_user.phone_number = phone_request.phone_number
     db.add(current_user)
     db.commit()

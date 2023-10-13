@@ -11,6 +11,7 @@ python-multipart = "*"
 python-jose = {extras = ["cryptography"], version = "*"}
 psycopg2-binary = "*"
 pymysql = "*"
+alembic = "*"
 
 [dev-packages]
 
